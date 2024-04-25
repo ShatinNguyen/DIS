@@ -1,0 +1,14 @@
+<!-- results.html -->
+<html>
+<head>
+    <title>Query Results</title>
+</head>
+<body>
+    <h1>Results</h1>
+    <ul>
+        {% for game in games %}
+            <li>Game ID: {{ game.id }}, Winner: {{ game.winner }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

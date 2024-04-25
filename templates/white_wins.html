@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>White Wins</title>
+</head>
+<body>
+    <h1>Games Where White Wins</h1>
+    <ul>
+        {% for game in games %}
+        <li>{{ game.id }}: {{ game.opening_name }} - {{ game.victory_status }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
