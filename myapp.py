@@ -41,7 +41,16 @@ def home():
 
 @app.route('/search', methods=['GET'])
 def search():
-    return render_template('results.html')
+    conn = connection()
+    cur = conn.cursor()
+    cur.execute("SELECT MAX(white_rating) AS max_white_rating, MAX(black_rating) AS max_black_rating FROM chess_games;")
+    results = cur.fetchone()
+    max_white, max_black = results
+    cur.execute("SELECT DISTINCT opening_name FROM chess_games ORDER BY opening_name;")
+    openings = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('results.html', max_white=max_white, max_black=max_black,openings=openings)
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -73,16 +82,6 @@ def submit():
     return render_template('results.html', games=games)
 
 
-
-@app.route('/white-wins')
-def white_wins():
-    conn = connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM chess_games WHERE winner = 'white'")
-    games = cur.fetchall()
-    cur.close()
-    conn.close()
-    return render_template('white_wins.html', games=games)
 
 
 
