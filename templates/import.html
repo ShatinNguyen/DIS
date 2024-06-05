@@ -1,0 +1,28 @@
+<!-- results.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Chess Game</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Import Chess Game</h1>
+        <form action="/importing" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="pgn_file">Upload PGN File:</label>
+                <input type="file" class="form-control-file" id="pgn_file" name="pgn_file">
+            </div>
+            <div class="form-group">
+                <label for="pgn_text">Or paste PGN Data:</label>
+                <textarea class="form-control" id="pgn_text" name="pgn_text" rows="10"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Import Game</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
