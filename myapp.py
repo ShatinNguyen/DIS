@@ -182,11 +182,13 @@ def import_page():
 def importing():
     file = request.files.get('pgn_file')
     if file and file.filename != '':
-        pgn_content = file.read().decode('utf-8')
+        content = file.read().decode('utf-8')
     else:
-        pgn_content = request.form.get('pgn_text', '')  
+        content = request.form.get('pgn_text', '')  
 
-    ## use functions
+    fields, moves = parser(content)
+    game_data = prepare_for_db(fields, moves)
+    insert_game(game_data)
 
     print("Success")
     return redirect(url_for('import_page'))
