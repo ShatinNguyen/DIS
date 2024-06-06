@@ -1,0 +1,57 @@
+<!-- import.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter Chess Game Details</title>
+</head>
+
+<!-- #"id" VARCHAR(100) x#"last_move_at" VARCHAR(100)#"victory_status" VARCHAR(50)#"opening_ply" INT " x -->
+<body>
+    <h1>Chess Game Entry Form</h1>
+    <form action="/submit_game" method="post">  
+          
+        <label for="rated">Rated:</label>
+        <select id="rated" name="rated">
+            <option value="True">Yes</option>
+            <option value="False">No</option>
+        </select><br><br>
+
+        <label for="created_at">Date:</label>
+        <input type="date" id="created_at" name="created_at"><br><br>
+
+        <label for="white">White Player:</label>
+        <input type="text" id="white" name="white"><br><br>
+        
+        <label for="white_rating">White rating:</label>
+        <input type="number" id="white_rating" name="white_rating" step="100"><br><br>
+
+        <label for="black">Black Player:</label>
+        <input type="text" id="black" name="black"><br><br>
+        
+        <label for="black_rating">Black rating:</label>
+        <input type="number" id="black_rating" name="black_rating" step="100"><br><br>
+        
+        
+
+        <label for="winner">Winner:</label>
+        <select id="winner" name="winner">
+            <option value="white">white</option>
+            <option value="black">black</option>
+            <option value="draw">Draw</option>
+        </select><br><br>
+
+        <label for="moves">Moves:</label>
+        <textarea id="moves" name="moves" rows="10" cols="50"></textarea><br><br>
+        
+        <label for="opening_eco">ECO:</label>
+        <input type="text" id="opening_eco" name="opening_eco"><br><br>
+
+        <label for="opening_name">Opening:</label>
+        <input type="text" id="opening_name" name="opening_name"><br><br>
+        
+
+        <button type="submit">Submit Game</button>
+    </form>
+</body>
+</html>
