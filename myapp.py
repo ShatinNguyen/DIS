@@ -3,6 +3,8 @@ from flask import Flask, render_template, request, redirect, url_for
 import psycopg2
 import re
 import uuid
+import random
+import string
 
 #Columns
 #"id" VARCHAR(100)
@@ -91,85 +93,6 @@ def submit():
 ####
 
 
-#IMPORT AND IMPORTING
-
-
-def parser(data):
-    pattern = re.compile(r"\[([A-Za-z0-9]+)\s+\"(.+?)\"\]")
-    metadata = dict(pattern.findall(data))
-    stripped_moves = re.sub(r'(\{[^}]*\})|(\([^)]*\))', '', data.split('\n\n', 1)[1]).strip()
-    moves = re.sub(r'\d+\.', '', stripped_moves).replace("  ", " ").strip()
-
-    return metadata, moves
-
-
-
-#def prep_moves(moves):
-#    moves = moves.split()
-#    result = []
-#    for i in range(len(moves)):
-#        curr = []
-#        for j in range(i,len(moves)):
-#            if moves[i] = int 
-#    return result
-    
-
-def whowon(fields, moves):
-    result = ""
-    winner = ""
-    if '#' in moves:
-        result = "checkmate"
-    elif "draw" in moves:
-        result = "draw"
-    else:
-        result= "no winner?"
-    data = fields.get("Result", "")
-    if '1-0' in data:
-        winner = "white"
-    elif '0-1' in data:
-        winner = "black"
-    else:
-        winner = "draw"
-    return result, winner
-
-
-
-def prepare_for_db(fields, moves):
-    victory_stats, winner = whowon(fields,moves)
-    
-
-    game_data = {
-        "id": str(uuid.uuid4()),
-        "rated": "True", ##skal fixes
-        "created_at": fields.get("Date"),
-        "last_move_at": "something",
-        "turns": len(moves.split()), 
-        "victory_status": whowon(moves),
-        "winner": winner,
-        "increment_code": "unknown",
-        "white_id": fields.get("White", "unknown"),
-        "black_id": fields.get("Black", "unknown"),
-        "white_rating": fields.get("WhiteElo","unknown"),
-        "black_rating": fields.get("BlackElo","unknown"),
-        "moves": moves,
-        "opening_eco": fields.get("ECO", "unknown"), 
-        "opening_name": fields.get("Opening", "unknown"),
-        "opening_ply": "unknown"
-    }
-    return game_data
-
-def insert_game(game_data):
-    conn = connection()
-    cur = conn.cursor()
-
-    columns = ', '.join(game_data.keys())
-    placeholders = ', '.join(['%s'] * len(game_data))
-    sql = f"INSERT INTO chess_games ({columns}) VALUES ({placeholders})"
-    
-    cur.execute(sql, list(game_data.values()))
-    conn.commit()
-    cur.close()
-    conn.close()
     
     
     
@@ -178,20 +101,66 @@ def import_page():
     return render_template('import.html')
 
 
-@app.route('/importing', methods=['POST'])
-def importing():
-    file = request.files.get('pgn_file')
-    if file and file.filename != '':
-        content = file.read().decode('utf-8')
-    else:
-        content = request.form.get('pgn_text', '')  
+def generate_custom_id(length=8):
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choices(characters, k=length))
 
-    fields, moves = parser(content)
-    game_data = prepare_for_db(fields, moves)
-    insert_game(game_data)
+def is_unique_id(game_id):
+    conn = connection()
+    cur = conn.cursor()
+    cur.execute("SELECT EXISTS(SELECT 1 FROM chess_games WHERE id = %s)", (game_id,))
+    exists = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return not exists
 
-    print("Success")
+def get_unique_id():
+    while True:
+        game_id = generate_custom_id()
+        if is_unique_id(game_id):
+            return game_id
+
+
+@app.route('/submit_game', methods=['POST'])
+def submit_game():
+    game_id = get_unique_id()
+    game_data = {
+        "id": game_id,
+        'rated': request.form['rated'],
+        'created_at': request.form['created_at'],
+        'last_move_at': request.form.get('last_move', None),
+        'turns': int(request.form.get('turns', 0)),
+        'victory_status': request.form.get('victory_status', None),
+        'winner': request.form['winner'],
+        'increment_code': request.form.get('increment_code', None),
+        'white_id': request.form['white'],
+        'white_rating': int(request.form['white_rating']),
+        'black_id': request.form['black'],
+        'black_rating': int(request.form['black_rating']),
+        'moves': request.form['moves'],
+        'opening_eco': request.form['opening_eco'],
+        'opening_name': request.form['opening_name'],
+        'opening_ply': request.form.get('opening_ply', None)
+    }
+    conn = connection()
+    cur = conn.cursor()
+    query = """
+    INSERT INTO chess_games (id, rated, created_at, last_move_at, turns, victory_status, winner, increment_code, white_id, white_rating, black_id, black_rating, moves, opening_eco, opening_name, opening_ply) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    cur.execute(query, (
+        game_data['id'], game_data['rated'], game_data['created_at'], game_data['last_move_at'],
+        game_data['turns'], game_data['victory_status'], game_data['winner'], game_data['increment_code'],
+        game_data['white_id'], game_data['white_rating'], game_data['black_id'], game_data['black_rating'],
+        game_data['moves'], game_data['opening_eco'], game_data['opening_name'], game_data['opening_ply']
+    ))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    
     return redirect(url_for('import_page'))
+
 
 ##
 

@@ -1,28 +1,57 @@
-<!-- results.html -->
+<!-- import.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Import Chess Game</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Enter Chess Game Details</title>
 </head>
+
+<!-- #"id" VARCHAR(100) x#"last_move_at" VARCHAR(100)#"victory_status" VARCHAR(50)#"opening_ply" INT " x -->
 <body>
-    <div class="container mt-5">
-        <h1>Import Chess Game</h1>
-        <form action="/importing" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="pgn_file">Upload PGN File:</label>
-                <input type="file" class="form-control-file" id="pgn_file" name="pgn_file">
-            </div>
-            <div class="form-group">
-                <label for="pgn_text">Or paste PGN Data:</label>
-                <textarea class="form-control" id="pgn_text" name="pgn_text" rows="10"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">Import Game</button>
-        </form>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.7/dist/js/bootstrap.bundle.min.js"></script>
+    <h1>Chess Game Entry Form</h1>
+    <form action="/submit_game" method="post">  
+          
+        <label for="rated">Rated:</label>
+        <select id="rated" name="rated">
+            <option value="True">Yes</option>
+            <option value="False">No</option>
+        </select><br><br>
+
+        <label for="created_at">Date:</label>
+        <input type="date" id="created_at" name="created_at"><br><br>
+
+        <label for="white">White Player:</label>
+        <input type="text" id="white" name="white"><br><br>
+        
+        <label for="white_rating">White rating:</label>
+        <input type="number" id="white_rating" name="white_rating" step="100"><br><br>
+
+        <label for="black">Black Player:</label>
+        <input type="text" id="black" name="black"><br><br>
+        
+        <label for="black_rating">Black rating:</label>
+        <input type="number" id="black_rating" name="black_rating" step="100"><br><br>
+        
+        
+
+        <label for="winner">Winner:</label>
+        <select id="winner" name="winner">
+            <option value="white">white</option>
+            <option value="black">black</option>
+            <option value="draw">Draw</option>
+        </select><br><br>
+
+        <label for="moves">Moves:</label>
+        <textarea id="moves" name="moves" rows="10" cols="50"></textarea><br><br>
+        
+        <label for="opening_eco">ECO:</label>
+        <input type="text" id="opening_eco" name="opening_eco"><br><br>
+
+        <label for="opening_name">Opening:</label>
+        <input type="text" id="opening_name" name="opening_name"><br><br>
+        
+
+        <button type="submit">Submit Game</button>
+    </form>
 </body>
 </html>
