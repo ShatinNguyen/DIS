@@ -4,9 +4,12 @@ from flask import Flask, render_template, request, redirect, url_for
 import re
 import psycopg2
 import re
-import uuid
 import random
 import string
+
+winner_pattern = re.compile(r'^(white|black)$', re.IGNORECASE)
+game_id_pattern = re.compile(r'^[a-zA-Z0-9]{8}$')
+moves_pattern = re.compile(r'^(\s*(?:[PNBRQK]?[a-h]?[1-8]?[x-]?[a-h][1-8][+#]?|O-O-O|O-O)\s*)+$')
 
 #Columns
 #"id" VARCHAR(100)
@@ -59,7 +62,14 @@ def search():
     openings = cur.fetchall()
     cur.close()
     conn.close()
-    return render_template('results.html', min_white=min_white, min_black=min_black,max_white=max_white,max_black=max_black,openings=openings,enumerate=enumerate)
+    return render_template('results.html', 
+        min_white=min_white, 
+        min_black=min_black,
+        max_white=max_white,
+        max_black=max_black,
+        openings=openings,
+        enumerate=enumerate
+    )
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -94,6 +104,11 @@ def submit():
         query += " AND opening_name LIKE %s"
         params.append(f"%{opening}%")
         filters_applied = True
+
+    if moves:
+        query += " AND moves ILIKE %s"
+        params.append(f"%{moves}%")
+        filters_applied = True
     
     if filters_applied:
         cur.execute(query, params)
@@ -101,11 +116,11 @@ def submit():
         games_filtered = []
 
         for i in range(len(games)):
-            if filterWinner(games[i][1]) & filterGameID(games[i][0]) & filterMoves(games[i][7]):
-                games_filtered.append(games[i])
+            if filterWinner(games[i][1]) & filterGameID(games[i][0]):
+                    games_filtered.append(games[i])
             
         if games_filtered:
-            moves = [game[-1] for game in games]
+            moves = [game[7] for game in games_filtered]
             white_moves, black_moves = sortMoves([(move,) for move in moves])
         
         else:
@@ -122,24 +137,16 @@ def submit():
         black_moves=black_moves,
     )
 
+
 def filterWinner(winner):
-    if re.search("white|black", winner, re.IGNORECASE):
-        return True
-    else:
-        return False
-    
+    return bool(winner_pattern.search(winner))
 
 def filterGameID(id):
-    if re.search("^[a-zA-Z0-9]{8}$", id):
-        return True
-    else:
-        return False
-    
+    return bool(game_id_pattern.match(id))
+
 def filterMoves(moves):
-    if re.match("^(\s*(?:[PNBRQK]?[a-h]?[1-8]?[x-]?[a-h][1-8][+#]?|O-O-O|O-O)\s*)+$", moves):
-        return True
-    else:
-        return False
+    return bool(moves_pattern.match(moves))
+
 
 def sortMoves(moves):
     white_moves = []
@@ -225,10 +232,11 @@ def update_game():
     else:
         return render_template('update.html')
 
+
+
 @app.route('/import', methods=['GET'])
 def import_page():
     return render_template('import.html')
-
 
 def generate_custom_id(length=8):
     characters = string.ascii_letters + string.digits
@@ -273,25 +281,50 @@ def submit_game():
     }
     conn = connection()
     cur = conn.cursor()
-    query = """
-    INSERT INTO chess_games (id, rated, created_at, last_move_at, turns, victory_status, winner, increment_code, white_id, white_rating, black_id, black_rating, moves, opening_eco, opening_name, opening_ply) 
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """
-    cur.execute(query, (
-        game_data['id'], game_data['rated'], game_data['created_at'], game_data['last_move_at'],
-        game_data['turns'], game_data['victory_status'], game_data['winner'], game_data['increment_code'],
-        game_data['white_id'], game_data['white_rating'], game_data['black_id'], game_data['black_rating'],
-        game_data['moves'], game_data['opening_eco'], game_data['opening_name'], game_data['opening_ply']
-    ))
 
-    conn.commit()
-    cur.close()
-    conn.close()
-    
-    return redirect(url_for('import_page'))
-@app.route('/about')
-def about():
-    return '<h1>About Page</h1>'
+    if filterMoves(game_data['moves']):
+        print("Valid moves")
+        query = """
+        INSERT INTO chess_games (id, 
+            rated, 
+            created_at, 
+            last_move_at, 
+            turns, 
+            victory_status, 
+            winner, 
+            increment_code, 
+            white_id, 
+            white_rating, 
+            black_id, 
+            black_rating, 
+            moves, 
+            opening_eco,
+            opening_name, 
+            opening_ply) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        message = f"Valid moves: {game_data['moves']}"
+        success = True
+
+        cur.execute(query,(
+            game_data['id'], game_data['rated'], game_data['created_at'], game_data['last_move_at'],
+            game_data['turns'], game_data['victory_status'], game_data['winner'], game_data['increment_code'],
+            game_data['white_id'], game_data['white_rating'], game_data['black_id'], game_data['black_rating'],
+            game_data['moves'], game_data['opening_eco'], game_data['opening_name'], game_data['opening_ply']
+        ))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return render_template('import.html', success=success, message=message)
+
+    else:
+        message = f'Invalid moves: {game_data["moves"]}'
+        success = False
+        conn.commit()
+        cur.close()
+        conn.close()
+        return render_template('import.html', message=message, success=success)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -40,6 +40,7 @@
         <a href="delete">Delete</a>
         <a href="update">Update</a>
         <a href="dataset">Dataset</a>
+        <a href="import">Import</a>
     </div>
     <div class="container">
         <h1>Chess Game Search</h1>
@@ -84,7 +85,6 @@
                     White player {{ game[2] }}, rating: {{ game[4] }} <br>
                     Black player {{ game[3] }}, rating: {{ game[5] }} <br>
                     Opening: {{ game[6] }} <br>
-                    Raw moves: {{ game[7] }} <br>
                     White moves: {{ white_moves[idx] | join(', ') }} <br>
                     Black moves: {{ black_moves[idx] | join(', ') }} <br>
                     <br>
