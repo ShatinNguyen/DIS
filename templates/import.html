@@ -5,6 +5,46 @@
 {% extends "nav.html" %}
 
 {% block content %}
+<style>
+    .delete-form {
+       margin-top: 20px;
+       padding: 20px;
+       background-color: #f9f9f9;
+       border: 1px solid #ddd;
+       border-radius: 5px;
+       max-width: 400px;
+       margin-left: auto;
+       margin-right: auto;
+   }
+
+   .delete-form input[type="text"] {
+       padding: 8px;
+       margin: 8px 0;
+       width: 100%;
+       box-sizing: border-box;
+   }
+
+   .delete-form input[type="submit"] {
+       background-color: #04AA6D;
+       color: white;
+       border: none;
+       padding: 10px 20px;
+       text-decoration: none;
+       margin: 4px 2px;
+       cursor: pointer;
+   }
+
+   .message {
+       margin-top: 20px;
+       text-align: center;
+       color: #d9534f;
+   }
+
+   .message.success {
+       color: #5cb85c;
+   }
+</style>
+
     <h1>Chess Game Entry Form</h1>
     <form action="/submit_game" method="post">  
           

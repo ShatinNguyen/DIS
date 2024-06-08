@@ -305,7 +305,7 @@ def submit_game():
             opening_ply) 
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        message = f"Valid moves: {game_data['moves']}"
+        message = f"Valid moves. Game has been successfully added with Game ID {game_data['id']}"
         success = True
 
         cur.execute(query,(
@@ -317,15 +317,25 @@ def submit_game():
         conn.commit()
         cur.close()
         conn.close()
-        return render_template('import.html', success=success, message=message, active_page='import')
+        return render_template(
+            'import.html',
+            success=success,
+            message=message,
+            active_page='import'
+        )
 
     else:
-        message = f'Invalid moves: {game_data["moves"]}'
+        message = f'Invalid moves. Game has not been added.'
         success = False
         conn.commit()
         cur.close()
         conn.close()
-        return render_template('import.html', message=message, success=success, active_page='import')
+        return render_template(
+            'import.html',
+            message=message, 
+            success=success, 
+            active_page='import'
+        )
 
 
 if __name__ == "__main__":

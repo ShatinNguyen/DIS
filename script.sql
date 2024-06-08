@@ -36,6 +36,6 @@ COPY chess_games(
     opening_eco,
     opening_name,
     opening_ply) 
-FROM 'dataset.csv' 
+FROM 'dataset.csv'
 DELIMITER ',' 
 CSV HEADER;
