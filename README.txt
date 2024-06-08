@@ -8,5 +8,6 @@ NOTE    You might need to modify the directory location after FROM in script.sql
         if your terminal/command cannot find dataset.csv
 
 RUNNING THE WEBSITE
+First go to app.py and change USER and PASSWORD to your username and password.
 After successfully COPY the dataset into your DATABASE the application 
 started by running app.py
