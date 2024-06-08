@@ -36,11 +36,6 @@ COPY chess_games(
     opening_eco,
     opening_name,
     opening_ply) 
-FROM '/Users/shatinnguyen/Library/Mobile Documents/com~apple~CloudDocs/Datalogi KU/2023/3. Databases and information systems/Project/DIS/games_noduplicate.csv' 
+FROM 'dataset.csv' 
 DELIMITER ',' 
 CSV HEADER;
-
-
--- psql -d ChessGame -U username -f script.sql
-
--- psql -d chessproject -U shatinnguyen -f '/Users/shatinnguyen/Library/Mobile Documents/com~apple~CloudDocs/Datalogi KU/2023/3. Databases and information systems/Project/DIS/script.sql'
